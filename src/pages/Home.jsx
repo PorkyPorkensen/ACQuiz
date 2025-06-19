@@ -99,7 +99,7 @@ function getTodayEST() {
     
       if (savedDate !== today) {
     // New day: reset attempts
-    localStorage.setItem('attemptsLeft', 3);
+    localStorage.setItem('attemptsLeft', 4);
     localStorage.setItem('attemptDate', today);
     setAttemptsLeft(4);
   } else {
