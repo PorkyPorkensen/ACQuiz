@@ -25,7 +25,11 @@
 
 
 
-
+.timer {
+  font-family: monospace;
+  font-size: 1.2rem;
+  color: #b94a48;
+}
 .main, .main2 {
   background-color: #faebdade;
   min-width: 400px;
