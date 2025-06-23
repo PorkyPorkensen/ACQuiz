@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import handleAnswer from "../services/handleAnswer";
+import QuestionBlock from "../components/QuestionBlock";
+import GameOverModal from "../components/GameOverModal";
+import { maleTraits, femaleTraits, starSigns } from "../data/staticData";
 
 export default function Home() {
   // -------------------
@@ -9,15 +12,9 @@ export default function Home() {
   const [possibleSigns, setPossibleSigns] = useState([]);
   const [possibleTraits, setPossibleTraits] = useState([]);
   const [possibleNames, setPossibleNames] = useState([]);
-  const [selectedName, setSelectedName] = useState(null);
-  const [selectedSign, setSelectedSign] = useState(null);
-  const [selectedTrait, setSelectedTrait] = useState(null);
-  const [signCorrect, setSignCorrect] = useState(null);
-  const [nameCorrect, setNameCorrect] = useState(null);
-  const [traitCorrect, setTraitCorrect] = useState(null);
-  const [nameFeedback, setNameFeedback] = useState("");
-  const [signFeedback, setSignFeedback] = useState("");
-  const [traitFeedback, setTraitFeedback] = useState("");
+  const [answers, setAnswers] = useState({ name: null, sign: null, trait: null });
+  const [correctness, setCorrectness] = useState({ name: null, sign: null, trait: null });
+  const [feedback, setFeedback] = useState({ name: "", sign: "", trait: "" });
   const [names, setNames] = useState([]);
   const [score, setScore] = useState(0);
   const [wrongAnswer, setWrongAnswer] = useState(0);
@@ -31,13 +28,7 @@ export default function Home() {
 
   const apiKey = import.meta.env.VITE_NOOKIPEDIA_API_KEY;
 
-  const starSigns = [
-    "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-    "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
-  ];
 
-  const maleTraits = ["Cranky", "Jock", "Lazy", "Smug"];
-  const femaleTraits = ["Normal", "Peppy", "Snooty", "Sisterly"];
 
   // -------------------
   // Helper Functions
@@ -91,15 +82,12 @@ export default function Home() {
   function resetQuiz() {
     setScore(0);
     setWrongAnswer(0);
-    setSelectedName(null);
-    setSelectedSign(null);
-    setSelectedTrait(null);
-    setNameFeedback("");
-    setSignFeedback("");
-    setTraitFeedback("");
-    setNameCorrect(null);
-    setSignCorrect(null);
-    setTraitCorrect(null);
+    setScore(0);
+    setWrongAnswer(0);
+    setAnswers({ name: null, sign: null, trait: null });
+    setCorrectness({ name: null, sign: null, trait: null });
+    setFeedback({ name: "", sign: "", trait: "" });
+    setCurrentQuestion(1);
     setCurrentQuestion(1);
   }
 
@@ -107,53 +95,55 @@ export default function Home() {
   // Handlers
   // -------------------
 
-  function handleNameAnswer(answer) {
-    handleAnswer({
-      answer,
-      correctValue: villager.name,
-      setSelected: setSelectedName,
-      setCorrect: setNameCorrect,
-      setFeedback: setNameFeedback,
-      correctText: "Correct! Nice work.",
-      incorrectText: "Nope! It was",
-      nextQuestion: 2,
-      setScore,
-      setWrongAnswer,
-      setCurrentQuestion,
-    });
-  }
+function handleNameAnswer(answer) {
+  handleAnswer({
+    key: "name",
+    answer,
+    correctValue: villager.name,
+    setAnswers,
+    setCorrectness,
+    setFeedback,
+    correctText: "Correct! Nice work.",
+    incorrectText: "Nope! It was",
+    nextQuestion: 2,
+    setScore,
+    setWrongAnswer,
+    setCurrentQuestion,
+  });
+}
+function handleSignAnswer(answer) {
+  handleAnswer({
+    key: "sign",
+    answer,
+    correctValue: villager.sign,
+    setAnswers,
+    setCorrectness,
+    setFeedback,
+    correctText: "Correct! Nice work.",
+    incorrectText: "Nope! It was",
+    nextQuestion: 3,
+    setScore,
+    setWrongAnswer,
+    setCurrentQuestion,
+  });
+}
 
-  function handleSignAnswer(answer) {
-    handleAnswer({
-      answer,
-      correctValue: villager.sign,
-      setSelected: setSelectedSign,
-      setCorrect: setSignCorrect,
-      setFeedback: setSignFeedback,
-      correctText: "Correct! Nice work.",
-      incorrectText: "Nope! It was",
-      nextQuestion: 3,
-      setScore,
-      setWrongAnswer,
-      setCurrentQuestion,
-    });
-  }
-
-  function handleTraitAnswer(answer) {
-    handleAnswer({
-      answer,
-      correctValue: villager.personality,
-      setSelected: setSelectedTrait,
-      setCorrect: setTraitCorrect,
-      setFeedback: setTraitFeedback,
-      correctText: "Correct! Nice work.",
-      incorrectText: "Nope! It was",
-      nextQuestion: 4,
-      setScore,
-      setWrongAnswer,
-      setCurrentQuestion,
-    });
-  }
+function handleTraitAnswer(answer) {
+  handleAnswer({
+    key: "trait",
+    answer,
+    correctValue: villager.personality,
+    setAnswers,
+    setCorrectness,
+    setFeedback,
+    correctText: "Correct! Nice work.",
+    incorrectText: "Nope! It was",
+    nextQuestion: 4,
+    setScore,
+    setWrongAnswer,
+    setCurrentQuestion,
+  });
+}
 
   function devReset(){
     setAttemptsLeft(4)
@@ -236,24 +226,8 @@ export default function Home() {
         <h1 style={{color: totalScore > 0 ? 'green' : 'inherit'}}>{totalScore}</h1>
         <p>High Score: {highScore}</p>
         <h2>Attempts Left Today: {attemptsLeft}</h2>
-        {showModal && (
-        <>
-            <div className="modal-overlay"></div>
-            <div className="modal">
-            <button
-                className="close-button"
-                onClick={() => setShowModal(false)}
-                aria-label="Close modal"
-            >
-                <i className="fa-solid fa-xmark"></i>
-            </button>
-            <h1 className="headerh1">Villager Quiz</h1>
-            <p>You’ve used all 4 attempts today.</p>
-            <p className="timer">Check back in: <strong>{resetTime}</strong></p>
-            {/* <button onClick={devReset}>...</button> */}
-            </div>
-        </>
-        )}
+        {/* <button onClick={devReset}></button> */}
+        {showModal && <GameOverModal onClose={() => setShowModal(false)} resetTime={resetTime} />}
       
       
       {villager && attemptsLeft > 0 ? (
@@ -265,101 +239,57 @@ export default function Home() {
             {/* <p>Species: {villager.sign}</p> */}
             </div>
           
-{currentQuestion === 1 && (
-  <div className="questionDiv fade-in">
-    <h2>Who is this villager?</h2>
-    <ul>
-      {possibleNames.map((name, index) => (
-        <li key={index}>
-          <button
-            onClick={() => handleNameAnswer(name)}
-            disabled={selectedName !== null}
-          >
-            {name}
-          </button>
-        </li>
-      ))}
-    </ul>
-    {selectedName && (
-      <p>
-        {nameCorrect ? (
-          <><i className="fa-solid fa-check" style={{ color: 'limegreen' }}></i> {nameFeedback}</>
-        ) : (
-          <><i className="fa-solid fa-xmark" style={{ color: 'red' }}></i> {nameFeedback}</>
-        )}
-      </p>
-    )}
-  </div>
-)}  
-{currentQuestion === 2 && (
-  <div className="questionDiv fade-in">
-    <h2>What is {villager.name}'s star sign?</h2>
-    <ul>
-      {possibleSigns.map((sign, index) => (
-        <li key={index}>
-          <button
-            onClick={() => handleSignAnswer(sign)}
-            disabled={selectedSign !== null}
-          >
-            {sign}
-          </button>
-        </li>
-      ))}
-    </ul>
-    {selectedSign && (
-      <p>
-        {signCorrect ? (
-          <><i className="fa-solid fa-check" style={{ color: 'limegreen' }}></i> {signFeedback}</>
-        ) : (
-          <><i className="fa-solid fa-xmark" style={{ color: 'red' }}></i> {signFeedback}</>
-        )}
-      </p>
-    )}
-  </div>
-)}
+          {currentQuestion === 1 && (
+          <QuestionBlock
+            question="Who is this villager?"
+            options={possibleNames}
+            selected={answers.name}
+            handleAnswer={handleNameAnswer}
+            correct={correctness.name}
+            feedback={feedback.name}
+          />
+          )} 
+
+          {currentQuestion === 2 && (
+          <QuestionBlock
+            question={`What is ${villager.name}'s star sign?`}
+            options={possibleSigns}
+            selected={answers.sign}
+            handleAnswer={handleSignAnswer}
+            correct={correctness.sign}
+            feedback={feedback.sign}
+          />
+
+          )}
 
           {currentQuestion === 3 && (
-  <div className="questionDiv fade-in">
-    <h2>What is {villager.name}'s Personality Type?</h2>
-    <ul>
-      {possibleTraits.map((trait, index) => (
-        <li key={index}>
-          <button
-            onClick={() => handleTraitAnswer(trait)}
-            disabled={selectedTrait !== null}
-          >
-            {trait}
-          </button>
-        </li>
-      ))}
-    </ul>
-    {selectedTrait && (
-      <p>
-        {traitCorrect ? (
-          <><i className="fa-solid fa-check" style={{ color: 'limegreen' }}></i> {traitFeedback}</>
-        ) : (
-          <><i className="fa-solid fa-xmark" style={{ color: 'red' }}></i> {traitFeedback}</>
-        )}
-      </p>
-    )}
-  </div>
-)}
-{currentQuestion === 4 && (
-  <div className="resultSection fade-in">
-    {score >= 2 ? (
-      <>
-        <h2>🎉 Congrats! You got {score}/3 correct!</h2>
-        <button onClick={dummy}>Next Villager</button>
-      </>
-    ) : (
-      <>
-        <h2>Womp Womp! You Failed to get 2/3 answers correct in order to continue.</h2>
-        <p>Your Score is: {totalScore}</p>
-        <button onClick={failedDummy}>Try Again</button>
-      </>
-    )}
-  </div>
-)}    </div>
+          <QuestionBlock
+            question={`What is ${villager.name}'s Personality Type?`}
+            options={possibleTraits}
+            selected={answers.trait}
+            handleAnswer={handleTraitAnswer}
+            correct={correctness.trait}
+            feedback={feedback.trait}
+          />
+          )}
+
+
+          {currentQuestion === 4 && (
+            <div className="resultSection fade-in">
+              {score >= 2 ? (
+                <>
+                  <h2>🎉 Congrats! You got {score}/3 correct!</h2>
+                  <button onClick={dummy}>Next Villager</button>
+                </>
+              ) : (
+                <>
+                  <h2>Womp Womp! You Failed to get 2/3 answers correct in order to continue.</h2>
+                  <p>Your Score is: {totalScore}</p>
+                  <button onClick={failedDummy}>Try Again</button>
+                </>
+              )}
+            </div>
+          )}    </div>
       ) : (
         ''
       )}
