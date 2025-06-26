@@ -11,7 +11,8 @@ export default function Header() {
       <div className="newDiv">
       <h1 className="header">Cr
       <img src={tomPic} width={60} />
-      ssing Quizzes</h1>
+      ssing 
+      Quizzes</h1>
       </div>
       <div className="linkDiv">
         <Link to="/">Home</Link> {" "}  

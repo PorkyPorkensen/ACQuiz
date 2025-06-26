@@ -24,13 +24,23 @@
 }
 
 .newDiv {
+  background-color: #facc97de;
+  color: rgb(138, 94, 53);
+
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgb(165, 80, 0);
+  text-align: center;
+  width: 300px;
+  margin: 1em auto;
 }
 
 .newDiv img {
-  margin: 0;
+  position: relative;
+  top: 12px;
+  margin: 0 -5px;
   padding: 0;
 }
 
@@ -78,14 +88,14 @@ li {
 }
 
 .header {
-  background-color: #facc97de;
+  /* background-color: #facc97de;
   color: rgb(138, 94, 53);
   padding: 0.5em;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgb(165, 80, 0);
+  box-shadow: 0 2px 8px rgb(165, 80, 0); */
 }
 
 .linkDiv {
